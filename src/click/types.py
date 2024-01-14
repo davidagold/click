@@ -828,7 +828,6 @@ class Path(ParamType):
         self.resolve_path = resolve_path
         self.allow_dash = allow_dash
         self.type = path_type
-        self.suffix = suffix
 
         if self.file_okay and not self.dir_okay:
             self.name: str = _("file")
@@ -836,6 +835,9 @@ class Path(ParamType):
             self.name = _("directory")
         else:
             self.name = _("path")
+        if suffix:
+            assert suffix.startswith("."), f"Suffix must begin with '.', got {suffix}."
+        self.suffix = suffix
 
     def to_info_dict(self) -> dict[str, t.Any]:
         info_dict = super().to_info_dict()
