@@ -136,7 +136,7 @@ _SOURCE_ZSH = """\
     response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) \
 %(complete_var)s=zsh_complete %(prog_name)s)}")
 
-    for type key descr in ${response}; do
+    for type key descr suffix in ${response}; do
         if [[ "$type" == "plain" ]]; then
             if [[ "$descr" == "_" ]]; then
                 completions+=("$key")
@@ -146,7 +146,11 @@ _SOURCE_ZSH = """\
         elif [[ "$type" == "dir" ]]; then
             _path_files -/
         elif [[ "$type" == "file" ]]; then
-            _path_files -f
+            if [[ "$suffix" == "_" ]]; then
+                _path_files -f
+            else
+                _path_files -f -g "**/*$suffix"
+            fi
         fi
     done
 
@@ -366,7 +370,8 @@ class ZshComplete(ShellComplete):
         return args, incomplete
 
     def format_completion(self, item: CompletionItem) -> str:
-        return f"{item.type}\n{item.value}\n{item.help if item.help else '_'}"
+        response = (item.type, item.value or "_", item.help or "_", item.suffix or "_")
+        return "\n".join(response)
 
 
 class FishComplete(ShellComplete):

@@ -789,6 +789,10 @@ class Path(ParamType):
     :param path_type: Convert the incoming path value to this type. If
         ``None``, keep Python's default, which is ``str``. Useful to
         convert to :class:`pathlib.Path`.
+    :param suffix: Filter possible completions by suffix (must begin with ``"."``).
+
+    .. versionchanged:: X.X
+        Added the ``suffix`` parameter.
 
     .. versionchanged:: 8.1
         Added the ``executable`` parameter.
@@ -813,6 +817,7 @@ class Path(ParamType):
         allow_dash: bool = False,
         path_type: type[t.Any] | None = None,
         executable: bool = False,
+        suffix: str | None = None,
     ):
         self.exists = exists
         self.file_okay = file_okay
@@ -823,6 +828,7 @@ class Path(ParamType):
         self.resolve_path = resolve_path
         self.allow_dash = allow_dash
         self.type = path_type
+        self.suffix = suffix
 
         if self.file_okay and not self.dir_okay:
             self.name: str = _("file")
@@ -945,7 +951,7 @@ class Path(ParamType):
         from click.shell_completion import CompletionItem
 
         type = "dir" if self.dir_okay and not self.file_okay else "file"
-        return [CompletionItem(incomplete, type=type)]
+        return [CompletionItem(incomplete, type=type, suffix=self.suffix)]
 
 
 class Tuple(CompositeParamType):
